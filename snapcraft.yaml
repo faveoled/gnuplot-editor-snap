@@ -59,7 +59,7 @@ parts:
       - python3-pyqt5.qtwebkit
     override-prime: |
       craftctl default
-      ln -s usr/bin/gnuplot-qt usr/bin/gnuplot || echo      
+      ln -s gnuplot-qt usr/bin/gnuplot || echo     
     after: [desktop-qt5]
 
 apps:
