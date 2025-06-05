@@ -1,8 +1,7 @@
 name: gnuplot-editor-unofficial
-summary: Interactive gnuplot script editor
-description: |
-  Note: this application is not maintained anymore.
-version: '1.5'
+summary: S
+description: D
+version: '1.5.1'
 grade: stable
 confinement: strict
 base: core22
@@ -10,7 +9,8 @@ license: GPL-3.0
 icon: snap/gui/gnuplot-editor-unofficial.png
 
 architectures:
-  - build-on: amd64
+  - build-on: [amd64]
+  - build-on: [arm64]
 
 parts:
   desktop-qt5:
@@ -21,6 +21,7 @@ parts:
     build-packages:
       - qtbase5-dev
       - dpkg-dev
+      - libglib2.0-bin
     stage-packages:
       - libxkbcommon0
       - fonts-ubuntu
@@ -33,6 +34,10 @@ parts:
       - libqt5svg5 # for loading icon themes which are svg
       - libgdk-pixbuf2.0-0
       - locales-all
+      - libglib2.0-bin
+    override-prime: |
+      craftctl default
+      glib-compile-schemas usr/share/glib-2.0/schemas
 
   qt5-gtk-platform:
     plugin: nil
@@ -41,8 +46,9 @@ parts:
 
   gnuplot-editor-unofficial:
     plugin: dump
-    source: https://sourceforge.net/projects/gpedit/files/1.x/gpedit_1.5-2_all.deb
-    source-type: deb
+    source-type: git
+    source: https://github.com/faveoled/gpedit
+    source-commit: 461d203dc80dbe8096dabc97457d82595e006e9a      
     stage-packages:
       - gnuplot
       - gnuplot-qt
@@ -50,24 +56,22 @@ parts:
       - python3-pyqt5.qtsvg
       - python3-pyqt5.qsci
       - python3-pyqt5.qtwebkit
-    organize:
-      usr/local/lib/python3.5: usr/local/lib/python3.10
     override-prime: |
-      snapcraftctl prime
-      ln -s gnuplot-qt usr/bin/gnuplot || echo      
+      craftctl default
+      ln -s usr/bin/gnuplot-qt usr/bin/gnuplot || echo      
     after: [desktop-qt5]
 
 apps:
   gnuplot-editor-unofficial:
-    command: bin/desktop-launch $SNAP/usr/local/bin/gped
-    desktop: usr/share/applications/GnuplotEditor.desktop
+    command: bin/desktop-launch $SNAP/gped
+    desktop: dist_data/GnuplotEditor.desktop
     environment:
       PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
       PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$SNAP/usr/lib/python3.10/site-packages:$SNAP/usr/local/lib/python3.10/dist-packages:$SNAP/usr/lib/python3.10/dist-packages:$PYTHONPATH
       # Fallback to XWayland if running in a Wayland session.
       DISABLE_WAYLAND: 1
       # Use GTK3 cursor theme, icon theme and open/save file dialogs.
-      QT_QPA_PLATFORMTHEME: gtk3      
+      QT_QPA_PLATFORMTHEME: gtk3
     plugs:
       - x11
       - unity7
